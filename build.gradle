@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+}
+
+// —— 占位包路径：把 cn.yourname 换成你自己的组织/昵称即可（全文共出现 1 处 group + 每个 java 文件的 package） —— //
+group = 'cn.yourname.maintenance'
+version = '1.0.0'
+
+java {
+    // 硬约束：toolchain 锁 Java 21；Gradle 会自动寻找本机 JDK 21
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+}
+
+dependencies {
+    // 只依赖公共服务端 API；MiniMessage / Adventure 由 paper-api 传递依赖提供，不 shade、不 NMS
+    compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    // release 21 保证 class 文件与引导类路径都按 21 编译
+    options.release.set(21)
+}
+
+tasks.named('jar') {
+    archiveBaseName.set('MaintenanceMode')
+    archiveVersion.set(project.version.toString())
+    // 不把 paper-api 打进 jar：服务端已提供
+}
+
+tasks.named('processResources') {
+    filteringCharset = 'UTF-8'
+    filesMatching('plugin.yml') {
+        // plugin.yml 中 version: '${version}' 会被替换
+        expand([version: project.version.toString()])
+    }
+}

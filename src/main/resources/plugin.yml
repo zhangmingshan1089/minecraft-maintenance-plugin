@@ -1,0 +1,34 @@
+name: MaintenanceMode
+version: '${version}'
+main: cn.yourname.maintenance.MaintenancePlugin
+api-version: '1.21'
+author: YourName
+description: 'Paper/Purpur 1.21.x 维护模式插件：独立员工豁免名单、Async 登录双保险拦截、Component MOTD、热重载与状态持久化。'
+website: https://github.com/zhangmingshan1089/minecraft-maintenance-plugin
+
+# PlaceholderAPI 是软依赖：不安装也能正常启动；安装了则在文案中额外支持 %papi_xxx% 之外的原生 PAPI 占位符
+softdepend: [PlaceholderAPI]
+
+commands:
+  maintenance:
+    description: 维护模式总命令
+    aliases: [mt, maint]
+    usage: /<command> <on|off|status|reload|add|remove|list|ip>
+
+permissions:
+  maintenance.admin:
+    description: 全部维护命令（含 add/remove/ip）
+    default: op
+    children:
+      maintenance.reload: true
+      maintenance.notify: true
+      maintenance.bypass: true
+  maintenance.reload:
+    description: 仅允许 reload
+    default: op
+  maintenance.notify:
+    description: 接收维护开关广播
+    default: op
+  maintenance.bypass:
+    description: 维护期间豁免进入（也可仅靠此权限进入，不必进名单）
+    default: false

@@ -1,0 +1,78 @@
+# ============================================================================
+#  MaintenanceMode / config.yml   —— 行为与开关
+#  中文注释为说明用途；Bukkit 的 YamlConfiguration 在自动补写缺失键时会丢失注释，
+#  插件会在补写前自动生成 .bak 备份，详见 README《假设与口径》。
+#
+#  【重要】本文件的 bypass.staff 是插件自建的独立「测试工作人员豁免名单」，
+#  与 server.properties / vanilla whitelist.json / Bukkit.setWhitelist() 完全无关，
+#  插件绝不修改原版白名单。
+# ============================================================================
+
+# 是否把维护开关与原因持久化到 state.yml（重启后仍保持维护态）。默认 true。
+# 设为 false 时每次启动都视为「未开启维护」，且不会写 state.yml。
+persist-state: true
+
+# 豁免名单判定口径（满足任意一条即放行）
+bypass:
+  # UUID 始终优先且始终生效（自动规范化为小写带横线）。
+  # 此项仅控制「玩家名大小写不敏感兜底匹配」是否启用。默认 true。
+  allow-name-fallback: true
+
+  # 是否检查 maintenance.bypass 权限节点。默认 true。
+  # 关闭后即使给了权限也不能进，只能靠名单 / 回环地址。
+  permission: true
+
+  # 独立工作人员豁免名单：可写 UUID（推荐，规范化小写带横线）或玩家名。
+  # 运行时用 /mt add|remove 增删，立即生效并写回本文件。
+  staff:
+    - '00000000-0000-0000-0000-000000000000'   # 示例占位（无风险的 nil UUID），请删除后写自己的
+
+# 本机回环地址豁免：127.0.0.1 / ::1 / 0:0:0:0:0:0:0:1 / localhost 经 InetAddress 归一化后匹配。
+ip-bypass:
+  enabled: true
+  # 安全边界（务必读 README）：
+  #  - false（默认）：插件把事件里的对端地址当作玩家真实地址。直连本机时 127.0.0.1 可进。
+  #    若服务端在 Velocity/Bungee/反代后面且对端就是代理的 127.0.0.1，则所有玩家都会被误判为豁免，
+  #    此时应把 enabled 设为 false，或正确配置代理转发后再开启。
+  #  - true：仅在已配置 PROXY 协议 / Velocity modern forwarding + forwarding-secret，
+  #    且 Paper 已把事件地址改写成真实玩家 IP 后，才声明「信任转发地址」。
+  #  - 插件【不会】解析 X-Forwarded-For / X-Real-IP 之类请求头，绝不无条件信任它们。
+  trust-forwarded-ip: false
+
+# 行为参数
+behavior:
+  # 开启维护时踢出在线非豁免玩家的缓冲 tick。0 = 同 tick 立即执行（默认）。
+  # >0 时用 scheduler 延迟执行，执行前会再次确认维护态仍在开启，避免「先关后踢」。
+  kick-delay-ticks: 0
+
+  # 单批次逐条 INFO 日志上限；超出的玩家只记一条汇总，防刷屏。0 表示只记汇总。
+  log-kick-limit: 10
+
+  # /mt reload 后若仍处维护态，是否重新筛一遍在线玩家并踢出新增的非豁免者。默认 true。
+  recheck-online-on-reload: true
+
+  # 开关广播是否也发给已豁免的在线员工。默认 true（false 时只有 maintenance.notify 且非豁免者收到）。
+  broadcast-include-staff: true
+
+  # %until% 占位符的文本（预计恢复时间）。留空显示「待公告」，不参与任何逻辑判断。
+  estimated-restore: '待公告'
+
+# 服务器列表（Server List Ping）显示策略
+server-list:
+  # 是否在服务器列表展示维护态。默认 true。
+  enabled: true
+
+  # 伪装 maxPlayers；-1 = 不改写（保留真实值）。
+  override-max-players: -1
+
+  # 伪装版本字符串；留空 = 不改写。
+  # 注意：Paper 1.21 的 version 只有 String API（setVersion），没有 Component 版；MOTD 用 Component 版。
+  version-text: ''
+
+  # 是否隐藏在线人数 / 玩家样本（客户端显示 ???）。默认 false。
+  hide-players: false
+
+  # hover 玩家样本，每行一条；首行建议放维护提示。留空列表 = 不改写样本。
+  player-sample:
+    - '服务器维护中'
+    - '请关注公告'

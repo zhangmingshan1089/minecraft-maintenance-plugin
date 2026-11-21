@@ -1,0 +1,63 @@
+# ============================================================================
+#  MaintenanceMode / messages.yml   —— 全部文案（简体中文默认模板）
+#
+#  兼容两套写法，可混用：
+#   1) 旧色码：&c &e &l &r，以及 6 位十六进制 &x&f&f&0&0&0&0
+#   2) Adventure MiniMessage：<red> <gradient:#ff0000:#ff8800> <newline>
+#      <click:run_command:'/mt status'> ... </click>
+#  非法 MiniMessage 标签由 TextUtil 捕获并兜底为纯文本，不会让插件崩溃。
+#
+#  内置占位符：%player% %uuid% %ip% %reason% %staff_count% %time% %until%
+#              %prefix% %state% %count% %list%
+#  额外：如已安装 PlaceholderAPI，文案中的 %papi_xxx% 之外的原生占位符亦会被展开
+#        （通过软依赖反射调用 PlaceholderAPI#setPlaceholders）。
+# ============================================================================
+
+# 统一前缀；TextUtil 会在未显式写 %prefix% 的文案前自动加上它
+prefix: '<gray>[<red>维护<gray>]<reset> '
+
+# 登录被拒（AsyncPlayerPreLoginEvent / PlayerLoginEvent）——玩家只会看到这段，无额外报错
+login-deny: |-
+  <red><bold>服务器正在维护中</bold>
+  <gray>请稍后再试，感谢理解。
+  <dark_gray>—— 维护组
+
+# 开启维护瞬间踢出在线非豁免玩家
+kick-online: |-
+  <red>服务器已进入维护状态
+  <gray>原因：<white>%reason%
+  <gray>预计恢复：<white>%until%
+
+# 服务器列表 MOTD（多行用 <newline>）
+motd: |-
+  <gradient:#ff5555:#ffaa00><bold>    服务器维护中    </bold></gradient>
+  <gray>    预计恢复：%until%    <newline><yellow>    请关注官方公告    </yellow>
+
+# 开关广播（发给 maintenance.notify 权限者；是否包含豁免员工由 behavior.broadcast-include-staff 决定）
+broadcast-on: '%prefix%<red>维护模式已开启</red> <gray>原因：%reason%'
+broadcast-off: '%prefix%<green>维护模式已关闭</green> <gray>服务器恢复正常。'
+
+# 命令回执
+no-permission: '%prefix%<red>你没有权限执行该命令。'
+reload-done: '%prefix%<green>配置已重载。</green> <gray>豁免名单 %staff_count% 人，维护状态未丢失。'
+staff-added: '%prefix%<green>已加入豁免名单：</green><white>%list%</white> <gray>（当前 %staff_count% 人）'
+staff-removed: '%prefix%<yellow>已从豁免名单移除：</yellow><white>%list%</white> <gray>（当前 %staff_count% 人）'
+staff-not-found: '%prefix%<red>未在豁免名单中找到：</red><white>%list%</white>'
+staff-list: |-
+  %prefix%<yellow>豁免名单（%staff_count% 人）：
+  <gray>%list%
+ip-status: '%prefix%<gray>回环地址豁免：<white>%state%</white> <gray>（信任转发 IP：%trust%）'
+ip-set: '%prefix%<green>回环地址豁免已设为：</green><white>%state%</white>'
+state-on: '开启'
+state-off: '关闭'
+usage: '%prefix%<gray>用法：<white>/mt <on|off|status|reload|add|remove|list|ip>'
+unknown-sub: '%prefix%<red>未知子命令：</red><white>%reason%</white> <gray>输入 /mt 查看用法。'
+
+# /mt status 输出（%state% 为「开启 / 关闭」，%time% 为当前时间）
+status: |-
+  %prefix%<yellow>维护状态：<white>%state%</white>
+  <gray>原因：<white>%reason%</white>
+  <gray>开启时间：<white>%time%</white>
+  <gray>预计恢复：<white>%until%</white>
+  <gray>豁免名单：<white>%staff_count%</white> 人
+  <gray>回环豁免：<white>%list%</white>
