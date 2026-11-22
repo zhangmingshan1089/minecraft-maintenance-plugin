@@ -1,5 +1,7 @@
 # MaintenanceMode
 
+![MaintenanceMode 功能演示：服务器列表 MOTD、登录拦截与命令回执](docs/demo.png)
+
 Paper / Purpur **1.21.11** 维护模式插件，Java 21 + Gradle Groovy，单 jar 交付。
 本 README 即工程文档；仓库内每个 Java 源文件都是全文，无省略、无 TODO。
 
